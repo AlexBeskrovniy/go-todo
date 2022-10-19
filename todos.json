@@ -1,0 +1,14 @@
+[
+    {
+        "Item": "Create HTTP Server", 
+        "IsComplited": true
+    },
+	{
+        "Item": "Pass template to the browser",
+        "IsComplited": false
+    },
+	{
+        "Item": "Create new Todo without database",
+        "IsComplited": false
+    }
+]

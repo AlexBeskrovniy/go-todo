@@ -10,8 +10,8 @@ var templ *template.Template
 var port string
 
 type Todo struct {
-	Item        string
-	IsComplited bool
+	Item        string `json:"item"`
+	IsComplited bool   `json:"is_complited"`
 }
 
 type PageData struct {
