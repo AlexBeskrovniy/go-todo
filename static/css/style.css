@@ -48,7 +48,7 @@ body {
     bottom: 3rem;
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
 }
 
 .form {
@@ -72,4 +72,14 @@ body {
     cursor: pointer;
     background-color: rgb(31, 10, 124);
     color: bisque;
+}
+
+a.delete {
+    text-decoration: none;
+    font-size: 1rem;
+    color: red;
+}
+
+a.delete:hover {
+    text-decoration: underline;
 }

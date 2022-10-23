@@ -1,14 +1,22 @@
 [
     {
-        "Item": "Create HTTP Server", 
-        "IsComplited": true
+        "id": "123",
+        "item": "Create HTTP Server",
+        "is_complited": true
     },
-	{
-        "Item": "Pass template to the browser",
-        "IsComplited": false
+    {
+        "id": "13",
+        "item": "Pass template to the browser",
+        "is_complited": false
     },
-	{
-        "Item": "Create new Todo without database",
-        "IsComplited": false
+    {
+        "id": "1",
+        "item": "Create new Todo without database",
+        "is_complited": false
+    },
+    {
+        "id": "cdaii67naqe35e1s84o0",
+        "item": "Delete todo",
+        "is_complited": false
     }
 ]

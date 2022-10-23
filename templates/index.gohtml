@@ -13,9 +13,11 @@
     <ul class="list">
         {{ range .Todos }}
             {{ if .IsComplited }}
-                <li data-todo class="list-item done">{{ .Item }}</li>
+                <li data-todo="{{.Id}}" class="list-item done">{{ .Item }}</li>
+                <a class="delete" href="/todo/delete?id={{.Id}}">Delete</a>
             {{ else }}
-                <li data-todo class="list-item">{{ .Item }}</li>
+                <li data-todo="{{.Id}}" class="list-item">{{ .Item }}</li>
+                <a class="delete" href="/todo/delete?id={{.Id}}">Delete</a>
             {{ end }}
         {{ end }}
     </ul>
