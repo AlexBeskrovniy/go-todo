@@ -12,7 +12,6 @@ import (
 )
 
 var templ *template.Template
-var port string
 
 type Todo struct {
 	Id          string `json:"id"`
@@ -25,9 +24,25 @@ type PageData struct {
 	Todos []Todo
 }
 
+func createFileIfNotExist(path string, content string) {
+	_, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			file, err := os.Create(path)
+			if err != nil {
+				panic(err)
+			} else {
+				file.WriteString(content)
+			}
+		}
+	}
+}
+
 func getTodoList(w http.ResponseWriter, r *http.Request) {
 	var todos []Todo
 	path := "./todos.json"
+
+	createFileIfNotExist(path, "[]")
 
 	byteValue, err := os.ReadFile(path)
 	if err != nil {
@@ -54,6 +69,8 @@ func createNewTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var todos []Todo
+	path := "./todos.json"
 	todo := r.FormValue("todo")
 	guid := xid.New().String()
 
@@ -62,9 +79,6 @@ func createNewTodo(w http.ResponseWriter, r *http.Request) {
 		Item:        todo,
 		IsComplited: false,
 	}
-
-	var todos []Todo
-	path := "./todos.json"
 
 	byteValue, err := os.ReadFile(path)
 	if err != nil {
@@ -91,9 +105,8 @@ func deleteTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todoId := r.FormValue("id")
-
 	var todos []Todo
+	todoId := r.FormValue("id")
 	path := "./todos.json"
 
 	byteValue, err := os.ReadFile(path)
@@ -131,14 +144,13 @@ func changeStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var todoId Id
+	var todos []Todo
+	path := "./todos.json"
 
 	err := json.NewDecoder(r.Body).Decode(&todoId)
 	if err != nil {
 		panic(err)
 	}
-
-	var todos []Todo
-	path := "./todos.json"
 
 	byteValue, err := os.ReadFile(path)
 	if err != nil {
@@ -174,7 +186,7 @@ func main() {
 	mux.HandleFunc("/todo/create", createNewTodo)
 	mux.HandleFunc("/todo/delete", deleteTodo)
 	mux.HandleFunc("/todo/status", changeStatus)
-	port = ":3001"
+	port := ":3001"
 
 	log.Fatal(http.ListenAndServe(port, mux))
 }
