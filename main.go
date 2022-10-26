@@ -121,14 +121,48 @@ func deleteTodo(w http.ResponseWriter, r *http.Request) {
 }
 
 func changeStatus(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPut {
+	if r.Method != http.MethodPost {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
-	r.ParseMultipartForm(0)
-	todoId := r.FormValue("id")
 
-	fmt.Println(todoId)
+	type Id struct {
+		Id string
+	}
+
+	var todoId Id
+
+	err := json.NewDecoder(r.Body).Decode(&todoId)
+	if err != nil {
+		panic(err)
+	}
+
+	var todos []Todo
+	path := "./todos.json"
+
+	byteValue, err := os.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	err = json.Unmarshal(byteValue, &todos)
+	if err != nil {
+		panic(err)
+	}
+
+	for i := 0; i < len(todos); i++ {
+		if todos[i].Id == todoId.Id {
+			todos[i].IsComplited = !todos[i].IsComplited
+			break
+		}
+	}
+
+	jsonTodos, err := json.MarshalIndent(&todos, "", "    ")
+	if err != nil {
+		panic(err)
+	}
+	os.WriteFile("todos.json", jsonTodos, 0666)
+
+	fmt.Println(todoId.Id)
 }
 
 func main() {
