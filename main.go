@@ -24,7 +24,7 @@ type PageData struct {
 	Todos []Todo
 }
 
-func createFileIfNotExist(path string, content string) {
+func CreateFileIfNotExist(path string, content string) {
 	_, err := os.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -38,11 +38,11 @@ func createFileIfNotExist(path string, content string) {
 	}
 }
 
-func getTodoList(w http.ResponseWriter, r *http.Request) {
+func GetTodoList(w http.ResponseWriter, r *http.Request) {
 	var todos []Todo
 	path := "./todos.json"
 
-	createFileIfNotExist(path, "[]")
+	CreateFileIfNotExist(path, "[]")
 
 	byteValue, err := os.ReadFile(path)
 	if err != nil {
@@ -61,7 +61,7 @@ func getTodoList(w http.ResponseWriter, r *http.Request) {
 	templ.Execute(w, data)
 }
 
-func createNewTodo(w http.ResponseWriter, r *http.Request) {
+func CreateNewTodo(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", http.MethodPost)
 		http.Error(w, "Метод запрещен!", http.StatusMethodNotAllowed)
@@ -96,10 +96,10 @@ func createNewTodo(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	os.WriteFile("todos.json", jsonTodos, 0666)
-	getTodoList(w, r)
+	GetTodoList(w, r)
 }
 
-func deleteTodo(w http.ResponseWriter, r *http.Request) {
+func DeleteTodo(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
@@ -130,10 +130,10 @@ func deleteTodo(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	os.WriteFile("todos.json", jsonTodos, 0666)
-	getTodoList(w, r)
+	GetTodoList(w, r)
 }
 
-func changeStatus(w http.ResponseWriter, r *http.Request) {
+func ChangeStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
@@ -182,10 +182,10 @@ func main() {
 	templ = template.Must(template.ParseFiles("templates/index.gohtml"))
 	fs := http.FileServer(http.Dir("./static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
-	mux.HandleFunc("/", getTodoList)
-	mux.HandleFunc("/todo/create", createNewTodo)
-	mux.HandleFunc("/todo/delete", deleteTodo)
-	mux.HandleFunc("/todo/status", changeStatus)
+	mux.HandleFunc("/", GetTodoList)
+	mux.HandleFunc("/todo/create", CreateNewTodo)
+	mux.HandleFunc("/todo/delete", DeleteTodo)
+	mux.HandleFunc("/todo/status", ChangeStatus)
 	port := ":3001"
 
 	log.Fatal(http.ListenAndServe(port, mux))
