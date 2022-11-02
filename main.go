@@ -54,7 +54,7 @@ func GetTodoList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := PageData{
-		Title: "Test TODO List",
+		Title: "Daily ToDo List",
 		Todos: todos,
 	}
 
@@ -72,6 +72,9 @@ func CreateNewTodo(w http.ResponseWriter, r *http.Request) {
 	var todos []Todo
 	path := "./todos.json"
 	todo := r.FormValue("todo")
+
+	defer r.Body.Close()
+
 	guid := xid.New().String()
 
 	newTodo := Todo{
@@ -96,7 +99,7 @@ func CreateNewTodo(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	os.WriteFile("todos.json", jsonTodos, 0666)
-	GetTodoList(w, r)
+	http.Redirect(w, r, "/", http.StatusMovedPermanently)
 }
 
 func DeleteTodo(w http.ResponseWriter, r *http.Request) {
@@ -130,7 +133,7 @@ func DeleteTodo(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	os.WriteFile("todos.json", jsonTodos, 0666)
-	GetTodoList(w, r)
+	http.Redirect(w, r, "/", http.StatusMovedPermanently)
 }
 
 func ChangeStatus(w http.ResponseWriter, r *http.Request) {
@@ -151,6 +154,7 @@ func ChangeStatus(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+	defer r.Body.Close()
 
 	byteValue, err := os.ReadFile(path)
 	if err != nil {
@@ -177,6 +181,21 @@ func ChangeStatus(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(todoId.Id)
 }
 
+func DeleteAllTodo(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	path := "./todos.json"
+	err := os.WriteFile(path, []byte("[]"), 0666)
+	if err != nil {
+		panic(err)
+	}
+
+	http.Redirect(w, r, "/", http.StatusMovedPermanently)
+}
+
 func main() {
 	mux := http.NewServeMux()
 	templ = template.Must(template.ParseFiles("templates/index.gohtml"))
@@ -186,6 +205,7 @@ func main() {
 	mux.HandleFunc("/todo/create", CreateNewTodo)
 	mux.HandleFunc("/todo/delete", DeleteTodo)
 	mux.HandleFunc("/todo/status", ChangeStatus)
+	mux.HandleFunc("/todo/clear-all", DeleteAllTodo)
 	port := ":3001"
 
 	log.Fatal(http.ListenAndServe(port, mux))
